@@ -1,8 +1,6 @@
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Function;
-
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -10,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -20,189 +19,225 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
+
+
+import java.util.ArrayList;
+
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class JavaFXTemplate extends Application{
 
+import java.util.Scanner;
+public class JavaFXTemplate extends Application {
 
-static final int WINDOW_WIDTH = 850;
-static final int WINDOW_HEIGHT = 750;
-static final String MAIN_BACKGROUND_COLOR = "-fx-background-color: green;";
+	private static final int BOARD_WIDTH = 1000;
+	private static final int BOARD_HEIGHT = BOARD_WIDTH;
+	private static final int CARD_WIDTH = 110;
+	private static final int CARD_HEIGHT = 154;
 
+	private BlackjackDealer theDealer;
+	private BlackjackGame blackjackGame;
+	private BlackjackGameLogic gameLogic;
+	private Pane gamePane;
 
-	/*
-	TextField text; 
-	Button addToListBtn, sceneChangeBtn, b4,b5,b6,b7, printListBtn;  
-	HashMap<String, Scene> sceneMap; 
-	GenericQueue<String> myQueue;
-	EventHandler<ActionEvent> returnButtons;
-	ListView<String> displayQueueItems;
-	//use this to add and delete from ListView
-	ObservableList<String> storeQueueItemsInListView;
-	//use this for pausing between actions
-	PauseTransition pause = new PauseTransition(Duration.seconds(3));
-	//constant values java style
-	static final int picHeight = 275;
-	static final int picWidth = 250;
-	*/
-
-public static void main(String[] args) {
-launch(args);
-}
- 
-public void start(Stage primaryStage) {
-	
-	primaryStage.setTitle("BlackJack Game");
-
-	Scene mainMenuScene = createMainMenuScene(primaryStage);
-	primaryStage.setScene(mainMenuScene);
-	primaryStage.show();
-	/*
-	text = new TextField();
-	addToListBtn = new Button("Add to List");
-	sceneChangeBtn = new Button("Change Scene");
-	printListBtn = new Button("PrintList");
-	sceneMap = new HashMap<String,Scene>();
-	//stores strings: from your project #1
-	myQueue = new GenericQueue<String>(" ");
-	displayQueueItems = new ListView<String>();
-	//initialize to an observable list
-	storeQueueItemsInListView = FXCollections.observableArrayList();
-	
-	//styling CSS way
-	text.setStyle("-fx-font-size: 18;"+"-fx-border-size: 20;"+ 
-			"-fx-border-color: purple;");
-	
-	displayQueueItems.setStyle("-fx-font-size: 25;"+"-fx-border-size: 20;"+ 
-			"-fx-border-color: purple;");
-	
-	//using lambda for EventHandler: press enter adds info from text field to queue
-	text.setOnKeyPressed(e -> {if(e.getCode().equals(KeyCode.ENTER)){
-							myQueue.enqueue(text.getText());
-							text.clear();
-							}
-        });
-	
-	//pause for 3 seconds then switch scene from picture buttons to original layout
-	pause.setOnFinished(e->primaryStage.setScene(sceneMap.get("scene")));
-	
-	//this handler is used by multiple buttons 
-	returnButtons = new EventHandler<ActionEvent>(){
-		public void handle(ActionEvent event){
-			Button b = (Button)event.getSource();
-			b.setDisable(true);
-		//	primaryStage.setScene(sceneMap.get("scene"));
-			pause.play(); //calls setOnFinished
-		}
-	};
-	
-	//add queue items to observable list and display inside of ListView
-	printListBtn.setOnAction(e-> {displayQueueItems.getItems().removeAll(storeQueueItemsInListView);
-								storeQueueItemsInListView.clear();
-								Iterator<String> i = myQueue.createIterator();
-								while(i.hasNext()) { 
-									storeQueueItemsInListView.add(i.next());
-								}
-								  displayQueueItems.setItems(storeQueueItemsInListView);});
-	
-							//add single strings: displayQueueItems.getItems().add("hello");
-	
-								
-	sceneChangeBtn.setOnAction(e -> primaryStage.setScene(sceneMap.get("pics")));
-	
-	addToListBtn.setOnAction(new EventHandler<ActionEvent>(){
-		
-		public void handle(ActionEvent event){
-			myQueue.enqueue(text.getText());;
-			text.clear();
-			
-		}
-	});
-	
-	//two scenes returned from two methods; put in hashmap
-	sceneMap.put("scene", createControlScene());
-	sceneMap.put("pics", createPicScene());
-	
-	primaryStage.setScene(sceneMap.get("scene"));
-	primaryStage.show();
-	*/
+	public static void main(String[] args) {
+		launch(args);
 	}
-	private Scene createMainMenuScene(Stage primaryStage) {
-	Button startButton = new Button("Start");
-	startButton.setOnAction(event -> {
-		Scene betScene = createBetScene(primaryStage);
-		primaryStage.setScene(betScene);
-	});
 
-	Vbox layout = new Vbox(20);
-	layout.getChildren().addAll(startButton);
-	layout.setStyle(MAIN_BACKGROUND_COLOR);
-	return new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+
+		//new stuff
+
+
+//new stuff
+		BorderPane root = new BorderPane();
+		GamePane gamePane = new GamePane();
+		root.setCenter(gamePane);
+
+		root.setStyle("-fx-background-color: #35654D;");
+
+		HBox buttonPanel = new HBox(10);
+		buttonPanel.setAlignment(Pos.CENTER);
+		Button hitButton = new Button("Hit");
+		Button stayButton = new Button("Stay");
+		hitButton.setFocusTraversable(false);
+		stayButton.setFocusTraversable(false);
+		buttonPanel.getChildren().addAll(hitButton, stayButton);
+		root.setBottom(buttonPanel);
+
+		Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
+		primaryStage.setScene(scene);
+
+		primaryStage.setTitle("BlackJack");
+		primaryStage.setResizable(false);
+		primaryStage.setOnCloseRequest(event -> System.exit(0));
+		primaryStage.show();
+
+		initializeGame();
+
+		int prePlayerSum = blackjackGame.gameLogic.handTotal(blackjackGame.playerHand);
+		System.out.println("Player Hand Sum: " + prePlayerSum);
+
+
+		hitButton.setOnAction(event -> {
+			Card card = blackjackGame.theDealer.drawOne();
+			blackjackGame.playerHand.add(card);
+			gamePane.getChildren().clear();
+			gamePane.updatePlayerHand();
+			int playerSum = blackjackGame.gameLogic.handTotal(blackjackGame.playerHand);
+			System.out.println("Player Hand Sum: " + playerSum);
+			//int playerAceCount = blackjackGame.getPlayerAceCount();
+
+			if (playerSum > 21) {
+				hitButton.setDisable(true);
+				stayButton.setDisable(true);
+
+				Text bustText = new Text("Busted with " + playerSum + "!");
+				bustText.setFont(Font.font("Arial", 30));
+				bustText.setFill(Color.WHITE);
+
+
+				bustText.setX(BOARD_WIDTH / 2 - bustText.getLayoutBounds().getWidth() / 2);
+				bustText.setY(BOARD_HEIGHT / 2);
+
+				gamePane.getChildren().add(bustText);
+
+			}
+		});
+
+		stayButton.setOnAction(event -> {
+			hitButton.setDisable(true);
+			stayButton.setDisable(true);
+
+			while (blackjackGame.gameLogic.evaluateBankerDraw(blackjackGame.bankerHand)) {
+				Card card = blackjackGame.theDealer.drawOne();
+				blackjackGame.bankerHand.add(card);
+				//int bankerSum = blackjackGame.gameLogic.handTotal(blackjackGame.bankerHand);
+				//int bankerAceCount = blackjackGame.getBankerAceCount();
+			}
+
+			gamePane.getChildren().clear();
+			gamePane.updateDealerHand();
+			gamePane.updatePlayerHand();
+
+
+			String message = blackjackGame.gameLogic.whoWon(blackjackGame.playerHand, blackjackGame.bankerHand);
+			Text resultText = new Text(message);
+			resultText.setFont(Font.font("Arial", 30));
+			resultText.setFill(Color.WHITE);
+			resultText.setLayoutX(220);
+			resultText.setLayoutY(250);
+			gamePane.getChildren().add(resultText);
+		});
 	}
 
 
-	//method to create our first scene with controls
-	/*public Scene createControlScene() {
-		
-		BorderPane pane = new BorderPane();
-		pane.setPadding(new Insets(70));
-		
-		VBox paneCenter = new VBox(10, text, addToListBtn, printListBtn, displayQueueItems);
-		
-		pane.setCenter(paneCenter);
-		pane.setLeft(sceneChangeBtn);
-		pane.setStyle("-fx-background-color: lightPink;");
-		
-		
-		return new Scene(pane, 850, 750);
-	} */
 
-	//method to create second scene with clickable buttons
-	/*public Scene createPicScene() {
-		
-		Image pic = new Image("cozmo.jpg");
-		ImageView v = new ImageView(pic);
-		v.setFitHeight(picHeight);
-		v.setFitWidth(picWidth);
-		v.setPreserveRatio(true);
-		
-		Image pic2 = new Image("cozmo.jpg");
-		ImageView v2 = new ImageView(pic2);
-		v2.setFitHeight(picHeight);
-		v2.setFitWidth(picWidth);
-		v2.setPreserveRatio(true);
-		
-		Image pic3 = new Image("cozmo.jpg");
-		ImageView v3 = new ImageView(pic3);
-		v3.setFitHeight(picHeight);
-		v3.setFitWidth(picWidth);
-		v3.setPreserveRatio(true);
-		
-		Image pic4 = new Image("cozmo.jpg");
-		ImageView v4 = new ImageView(pic4);
-		v4.setFitHeight(picHeight);
-		v4.setFitWidth(picWidth);
-		v4.setPreserveRatio(true);
-		
-		b4 = new Button();
-		b4.setOnAction(returnButtons);
-		b4.setGraphic(v);
-		b5 = new Button();
-		b5.setOnAction(returnButtons);
-		b5.setGraphic(v2);
-		b6 = new Button();
-		b6.setGraphic(v3);
-		b6.setOnAction(returnButtons);
-		b7 = new Button();
-		b7.setGraphic(v4);
-		b7.setOnAction(returnButtons);
-		
-		HBox root = new HBox(5, b7,b5,b6,b4);
-		root.setStyle("-fx-background-color: lightblue;");
-		
-		return new Scene(root, 900,800);
-		
-	}*/
+	private void initializeGame() {
+		theDealer = new BlackjackDealer();
+		blackjackGame = new BlackjackGame();
+		gameLogic = new BlackjackGameLogic();
+		gamePane = new GamePane();
+
+		blackjackGame.initializeGame(); // Initialize the game
+	}
+
+	class GamePane extends Pane {
+		@Override
+		protected void layoutChildren() {
+			super.layoutChildren();
+			getChildren().clear();
+
+			try {
+				Image hiddenCardImg = new Image("cards/BACK.png");
+				ImageView hiddenCardView = new ImageView(hiddenCardImg);
+				hiddenCardView.setFitWidth(CARD_WIDTH);
+				hiddenCardView.setFitHeight(CARD_HEIGHT);
+				getChildren().add(hiddenCardView);
+
+				//Draw Banker's Hand
+				for(int i = 0; i < blackjackGame.bankerHand.size(); i++){
+					Card card = blackjackGame.bankerHand.get(i);
+					Image cardImg = new Image("cards/" + card.getImagePath());
+					ImageView cardView = new ImageView(cardImg);
+					cardView.setFitWidth(CARD_WIDTH);
+					cardView.setFitHeight(CARD_HEIGHT);
+					cardView.setLayoutX(CARD_WIDTH + 25 + (CARD_WIDTH + 5) * i);
+					getChildren().add(cardView);
+				}
+
+				//Draw Player's Hand
+				for(int i = 0; i < blackjackGame.playerHand.size(); i++){
+					Card card = blackjackGame.playerHand.get(i);
+					Image cardImg = new Image("cards/" + card.getImagePath());
+					ImageView cardView = new ImageView(cardImg);
+					cardView.setFitWidth(CARD_WIDTH);
+					cardView.setFitHeight(CARD_HEIGHT);
+					cardView.setLayoutX(CARD_WIDTH + 25 + (CARD_WIDTH + 5) * i);
+					cardView.setLayoutY(320);
+					getChildren().add(cardView);
+				}
+
+				String message = gameLogic.whoWon(blackjackGame.playerHand, blackjackGame.bankerHand);
+				if (!message.isEmpty()) {
+					Text text = new Text(message);
+					text.setFont(Font.font("Arial", 30));
+					text.setFill(Color.WHITE);
+					text.setLayoutX(220);
+					text.setLayoutY(250);
+					getChildren().add(text);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+
+
+
+
+		public void updatePlayerHand() {
+			for (int i = 0; i < blackjackGame.playerHand.size(); i++) {
+				Card card = blackjackGame.playerHand.get(i);
+				Image cardImg = new Image("cards/" + card.getImagePath());
+				ImageView cardView = new ImageView(cardImg);
+				cardView.setFitWidth(CARD_WIDTH);
+				cardView.setFitHeight(CARD_HEIGHT);
+				cardView.setLayoutX(CARD_WIDTH + 25 + (CARD_WIDTH + 5) * i);
+				cardView.setLayoutY(320); // Adjust the Y position to where the player's cards should be displayed
+				getChildren().add(cardView);
+			}
+		}
+
+
+		public void updateDealerHand() {
+			double startX = (BOARD_WIDTH - (CARD_WIDTH + 5) * blackjackGame.bankerHand.size()) / 2;
+			for (int i = 0; i < blackjackGame.bankerHand.size(); i++) {
+				Card card = blackjackGame.bankerHand.get(i);
+				Image cardImg = new Image("cards/" + card.getImagePath());
+				ImageView cardView = new ImageView(cardImg);
+				cardView.setFitWidth(CARD_WIDTH);
+				cardView.setFitHeight(CARD_HEIGHT);
+				cardView.setLayoutX(startX + (CARD_WIDTH + 5) * i); // Position cards with a gap of 5 pixels
+				cardView.setLayoutY(50); // Position the cards 50 pixels from the top of the pane
+				getChildren().add(cardView);
+			}
+		}
+
+
+
+	}
+
 }
+
+
 
